@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : integral.c
-Author      : Benedikt Heuser
-SCIPER		: 376973,
+Author      : Benedikt Heuser, Atharva Gangal
+SCIPER		: 376973, 376328
 ============================================================================
 */
 
@@ -40,28 +40,28 @@ int main (int argc, const char *argv[]) {
 
 
 double integrate (int num_threads, int samples, int a, int b, double (*f)(double)) {
-    double integral = 0;
+    double integral;
 
-    omp_set_num_threads(num_threads);
-
-    /* Your code goes here */
-    rand_gen gen = init_rand();
-    double x = 0;
-    double fx = 0;
     double range = b - a;
     double sum_of_rects = 0;
 
-    #pragma omp parallel for
-    for (int i = 0; i < samples; i++) {
+    #pragma omp parallel reduction(+:sum_of_rects)
+    {
+        rand_gen gen = init_rand();
 
-        x = next_rand(gen) * range + a;
-        fx = f(x);
+        #pragma omp for 
+        for(int i = 1; i <= samples; ++i){
+            // generate new sample point
+            double x = next_rand(gen) * range + a;
+            double fx = f(x);
 
-        #pragma omp atomic
-        sum_of_rects = sum_of_rects + fx * range;
+            sum_of_rects = sum_of_rects + fx * range;
+            
+        }
 
-    }
-
+        free_rand(gen);
+    } 
+    
     integral = sum_of_rects / samples;
 
     return integral;
