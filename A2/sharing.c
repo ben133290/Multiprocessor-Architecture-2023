@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : pi.c
-Author      : Your names goes here
-SCIPER		: Your SCIPER numbers
+Author      : Benedikt Heuser, Atharva Gangal
+SCIPER		: 376973, 376328
 ============================================================================
 */
 
@@ -10,7 +10,7 @@ SCIPER		: Your SCIPER numbers
 #include <stdlib.h>
 #include "utility.h"
 
-int perform_bucket_computation(int, int, int);
+int perform_buckets_computation(int, int, int);
 
 int main (int argc, const char *argv[]) {
     int num_threads, num_samples, num_buckets;
@@ -32,11 +32,14 @@ int main (int argc, const char *argv[]) {
 }
 
 int perform_buckets_computation(int num_threads, int num_samples, int num_buckets) {
-    volatile int *histogram = (int*) calloc(num_buckets, sizeof(int));
+    volatile int *histogram = (int*) calloc(num_threads * num_buckets, sizeof(int));
     rand_gen generator = init_rand();
+
+    #pragma omp parallel for num_threads(num_threads)
     for(int i = 0; i < num_samples; i++){
         int val = next_rand(generator) * num_buckets;
-        histogram[val]++;
+        int tid = omp_get_thread_num();
+        histogram[(tid*val)+val]++;
     }
     free_rand(generator);
     return 0;

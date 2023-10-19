@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : algorithm.c
-Author      : Your names go here
-SCIPER      : Your SCIPER numbers
+Author      : Benedikt Heuser, Atharva Gangal
+SCIPER		: 376973, 376328
 
 ============================================================================
 */
@@ -18,8 +18,10 @@ void simulate(double *input, double *output, int threads, int length, int iterat
     // Parallelize this!!
     for(int n=0; n < iterations; n++)
     {
+
         for(int i=1; i<length-1; i++)
         {
+            #pragma omp parallel for num_threads(threads)
             for(int j=1; j<length-1; j++)
             {
                     if ( ((i == length/2-1) || (i== length/2))
