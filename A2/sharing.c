@@ -31,16 +31,31 @@ int main (int argc, const char *argv[]) {
     return 0;
 }
 
-int perform_buckets_computation(int num_threads, int num_samples, int num_buckets) {
-    volatile int *histogram = (int*) calloc(num_threads * num_buckets, sizeof(int));
-    rand_gen generator = init_rand();
+typedef struct {
+int _c;
+int _padding[15];
+} PadInt;
 
-    #pragma omp parallel for num_threads(num_threads)
+int perform_buckets_computation(int num_threads, int num_samples, int num_buckets) {
+    volatile int *histogram = (int*) calloc(num_buckets, sizeof(int));
+    rand_gen generator = init_rand();
+    PadInt hist[num_buckets][num_threads];
+    omp_set_num_threads(num_threads);
+
+    #pragma omp parallel for
     for(int i = 0; i < num_samples; i++){
         int val = next_rand(generator) * num_buckets;
         int tid = omp_get_thread_num();
-        histogram[(tid*val)+val]++;
+        hist[val][tid]._c++;
     }
     free_rand(generator);
+
+    #pragma omp parallel for shared(hist, histogram)
+    for(int i = 0; i < num_buckets; i++) {
+        for (int j = 0; j < num_threads; j++) {
+        histogram[i] += hist[i][j]._c;
+        }
+    }
+
     return 0;
 }
