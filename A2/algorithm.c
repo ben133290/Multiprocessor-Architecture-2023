@@ -18,7 +18,7 @@ void simulate(double *input, double *output, int threads, int length, int iterat
     // Parallelize this!!
     for(int n=0; n < iterations; n++)
     {
-
+	#pragma omp parallel for num_threads(threads)
         for(int i=1; i<length-1; i++)
         {
             #pragma omp parallel for num_threads(threads)
