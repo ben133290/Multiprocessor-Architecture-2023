@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : pi.c
-Author      : Benedikt Heuser, Atharva Gangal
-SCIPER		: 376973, 376328
+Author      : Your names goes here
+SCIPER		: Your SCIPER numbers
 ============================================================================
 */
 
@@ -31,38 +31,18 @@ int main (int argc, const char *argv[]) {
     return 0;
 }
 
-typedef struct {
-int _c;
-int _padding[15];
-} PadInt;
-
 int perform_buckets_computation(int num_threads, int num_samples, int num_buckets) {
     volatile int *histogram = (int*) calloc(num_buckets, sizeof(int));
-    PadInt hist[num_buckets][num_threads];
-    omp_set_num_threads(num_threads);
+    rand_gen generator = init_rand();
 
-    #pragma omp parallel
-    {
-        rand_gen generator = init_rand();
-        int val;
-        int tid = omp_get_thread_num();
-
-        #pragma omp for
-        for(int i = 0; i < num_samples; i++) {
-            //val = next_rand(generator) * num_buckets;
-            hist[val][tid]._c++;
-        }
-
-        // Ensure each thread's generator is properly finalized.
-        free_rand(generator);
-    }
-
-    #pragma omp parallel for shared(hist, histogram)
-    for(int i = 0; i < num_buckets; i++) {
-        for (int j = 0; j < num_threads; j++) {
-        histogram[i] += hist[i][j]._c;
+    #pragma omp parallel for
+    for(int i = 0; i < num_samples; i++){
+        #pragma omp critical
+        {
+            int val = next_rand(generator) * num_buckets;
+            histogram[val]++;
         }
     }
-
+    free_rand(generator);
     return 0;
 }
