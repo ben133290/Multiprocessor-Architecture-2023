@@ -1,0 +1,8 @@
+STARTING AT Wed Nov 15 21:39:00 CET 2023
+Local:
+Traversing 8 GB array took total time = 1.428 seconds, number of accesses = 67119765, 2.127e-08 seconds per access
+Interleaved:
+Traversing 8 GB array took total time = 1.77 seconds, number of accesses = 67119765, 2.637e-08 seconds per access
+remote
+Traversing 8 GB array took total time = 2.182 seconds, number of accesses = 67119765, 3.251e-08 seconds per access
+FINISHED at Wed Nov 15 21:40:30 CET 2023
